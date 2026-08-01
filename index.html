@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>物理作业评审系统</title>
+<title>物理作业评审系统 | Physics Homework Review</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛️</text></svg>">
 <style>
   :root {
     --primary: #1e3a5f;
@@ -53,15 +54,24 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
+    font-size: 40px;
     margin-bottom: 16px;
   }
 
   header h1 {
     font-size: 28px;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     letter-spacing: 1px;
+  }
+
+  header h1 .en {
+    display: block;
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 0.7;
+    letter-spacing: 2px;
+    margin-top: 2px;
   }
 
   header p {
@@ -532,6 +542,68 @@
   .toast.error { background: var(--danger); }
   .toast.success { background: var(--success); }
 
+  /* ===== Footer ===== */
+  .footer {
+    max-width: 860px;
+    margin: 0 auto 40px;
+    padding: 0 16px;
+  }
+
+  .footer-inner {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 28px;
+    text-align: center;
+  }
+
+  .footer-inner .version-info {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .footer-inner .version-tag {
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .footer-inner .version-badge {
+    background: var(--primary);
+    color: white;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .footer-inner .update-time {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .footer-inner .footer-links {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .footer-inner .footer-links a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .footer-inner .footer-links a:hover {
+    text-decoration: underline;
+  }
+
   /* ===== Responsive ===== */
   @media (max-width: 600px) {
     header { padding: 28px 16px 24px; }
@@ -539,6 +611,7 @@
     .upload-card, .history-card { padding: 20px; }
     .form-row { flex-direction: column; gap: 12px; }
     .feedback-meta { flex-direction: column; gap: 6px; align-items: flex-start; }
+    .footer-inner .version-info { flex-direction: column; gap: 8px; }
   }
 </style>
 </head>
@@ -546,14 +619,14 @@
 
 <!-- ===== Header ===== -->
 <header>
-  <div class="avatar">📚</div>
-  <h1>物理作业评审系统</h1>
+  <div class="avatar">⚛️</div>
+  <h1>物理作业评审系统<span class="en">Physics Homework Review</span></h1>
   <p>由大学物理老师在线审阅你的作业，提供专业、严谨的批改意见与修改方向</p>
   <div class="badges">
-    <span class="badge">论文与学术指导</span>
-    <span class="badge">作业与项目批改</span>
-    <span class="badge">学术规范检查</span>
-    <span class="badge">成长与规划咨询</span>
+    <span class="badge">物理作业评审</span>
+    <span class="badge">学术表达规范</span>
+    <span class="badge">公式与推导检查</span>
+    <span class="badge">导入导出记录</span>
   </div>
 </header>
 
@@ -652,10 +725,31 @@
 
 </div>
 
+<!-- ===== Footer ===== -->
+<div class="footer">
+  <div class="footer-inner">
+    <div class="version-info">
+      <span class="version-tag"><span class="version-badge" id="versionBadge">v1.0.0</span></span>
+      <span class="version-tag">更新时间：<strong id="updateTime">2026-08-01</strong></span>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/maxinswjtu/physics-homework" target="_blank">GitHub 仓库</a>
+      &nbsp;·&nbsp; 由大学物理老师提供技术支持
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
+// ===== 版本信息 =====
+const VERSION = 'v1.1.0';
+const UPDATE_TIME = '2026-08-01';
+
+document.getElementById('versionBadge').textContent = VERSION;
+document.getElementById('updateTime').textContent = UPDATE_TIME;
+
 // ===== 物理科目集合 =====
 const PHYSICS_SUBJECTS = new Set([
   'physics', 'mechanics', 'electromagnetism',
@@ -1091,8 +1185,8 @@ function updateDataStatus() {
 }
 
 // ===== 导出数据为 JSON 文件 =====
-function exportData() {
-  const dataStr = JSON.stringify(historyData, null, 2);
+  function exportData() {
+    const dataStr = JSON.stringify({ version: VERSION, updateTime: UPDATE_TIME, records: historyData }, null, 2);
   const blob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1107,8 +1201,15 @@ function exportData() {
 async function importData(file) {
   try {
     const text = await file.text();
-    const data = JSON.parse(text);
-    if (!Array.isArray(data)) throw new Error('数据格式不正确，应为数组');
+    const parsed = JSON.parse(text);
+    let data;
+    if (Array.isArray(parsed)) {
+      data = parsed;
+    } else if (parsed && Array.isArray(parsed.records)) {
+      data = parsed.records;
+    } else {
+      throw new Error('数据格式不正确，应为数组或包含 records 的对象');
+    }
     historyData = data;
     if (useExternalFile && fileHandle) {
       await writeToExternalFile(historyData);
